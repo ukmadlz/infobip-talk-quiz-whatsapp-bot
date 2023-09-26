@@ -16,8 +16,8 @@ connectionUrl.search = "";
 fastify.register(FastifyPostgres, {
   connectionString: connectionUrl.href,
   ssl: {
-      rejectUnauthorized: false,
-      ca: process.env.CA_PEM,
+    rejectUnauthorized: false,
+    ca: process.env.CA_PEM,
   },
 });
 fastify.register(FastifyStatic, {
@@ -59,7 +59,8 @@ fastify.post(
             from: String(process.env.INFOBIP_WHATSAPP_SENDER),
             to: from,
             content: {
-              mediaUrl: "https://a729-92-87-237-3.ngrok-free.app/images/looking-forward-to-having-some-fun-with-this.gif",
+              mediaUrl:
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2Y2aFqUbRHfMnxOthwedrzyeXGXjLhUIy-A&usqp=CAU",
             },
           });
         }
@@ -136,7 +137,7 @@ fastify.get(
 const start = async () => {
   try {
     const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
-    const HOST = process.env.PORT ? '0.0.0.0' : '127.0.0.1';
+    const HOST = process.env.PORT ? "0.0.0.0" : "127.0.0.1";
     await fastify.listen({ port: PORT, host: HOST });
   } catch (err) {
     fastify.log.error(err);
