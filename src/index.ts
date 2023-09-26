@@ -19,8 +19,7 @@ fastify.register(FastifyPostgres, {
   },
 });
 fastify.register(FastifyStatic, {
-  root: Path.join(__dirname, "public"),
-  prefix: "/public/",
+  root: Path.join(__dirname, "../public"),
 });
 fastify.register(FastifySensible);
 
