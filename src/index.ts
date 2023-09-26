@@ -11,10 +11,12 @@ import "dotenv/config";
 const fastify = Fastify({
   logger: true,
 });
+const connectionUrl = new URL(String(process.env.DATABASE_URL));
+connectionUrl.search = "";
 fastify.register(FastifyPostgres, {
-  connectionString: process.env.DATABASE_URL,
+  connectionString: connectionUrl.href,
   ssl: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
       ca: process.env.CA_PEM,
   },
 });
