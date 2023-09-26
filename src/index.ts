@@ -82,6 +82,14 @@ fastify.post(
           );
         }
         infobip.channels.whatsapp.markAsRead(to, messageId);
+        await infobip.channels.whatsapp.send({
+          type: "text",
+          from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+          to: from,
+          content: {
+            text: "Wait for the questions to come in",
+          },
+        });
       });
       return { hello: "world" };
     } catch (error) {
