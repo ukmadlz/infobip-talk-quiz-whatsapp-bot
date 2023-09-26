@@ -59,7 +59,7 @@ fastify.post(
             from: String(process.env.INFOBIP_WHATSAPP_SENDER),
             to: from,
             content: {
-              mediaUrl: "https://a729-92-87-237-3.ngrok-free.app/public/images/looking-forward-to-having-some-fun-with-this.gif",
+              mediaUrl: "https://a729-92-87-237-3.ngrok-free.app/images/looking-forward-to-having-some-fun-with-this.gif",
             },
           });
         }
