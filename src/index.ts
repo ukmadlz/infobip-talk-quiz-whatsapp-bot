@@ -155,6 +155,68 @@ fastify.get(
   },
 );
 
+fastify.get("/message/coupons", async (request: any, reply) => {
+  const usersData = await fastify.pg.query("SELECT id, phone FROM users");
+  const couponsData = await fastify.pg.query("SELECT id, coupon FROM coupons");
+
+  const coupons = await couponsData.rows.map(async (coupon: any) => {
+    return coupon;
+  });
+  await usersData.rows.map(async (user: any) => {
+    if (coupons.length) {
+      const { id, phone } = user;
+      const coupon = coupons.pop();
+      await infobip.channels.whatsapp.send({
+        type: "text",
+        from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+        to: phone,
+        content: {
+          text: "Your €20 coupon code to use on the infobip platform is valid for 14 days. To register an account head to https://r.elsmore.me/3rsyW38, and apply the following code in the referrals section in the bottom left:",
+        },
+      });
+      await infobip.channels.whatsapp.send({
+        type: "text",
+        from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+        to: phone,
+        content: {
+          text: coupon.coupon,
+        },
+      });
+      await fastify.pg.query("UPDATE coupons SET user_id = $1 WHERE id = $2", [
+        id,
+        coupon.id,
+      ]);
+      await infobip.channels.whatsapp.send({
+        type: "text",
+        from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+        to: phone,
+        content: {
+          text: "Any questions, need help, or just want to chat head to our discord at https://discord.com/invite/G9Gr6fk2e4",
+        },
+      });
+    }
+  });
+});
+
+fastify.get("/", async (request, reply) => {
+  const questionData = await fastify.pg.query(
+    "SELECT id, question FROM questions ORDER BY id",
+  );
+  const questions = await questionData.rows.map((question: any) => {
+    return `<li><a href="/message/question/${question.id}" target="_blank">${question.question}</a></li>`;
+  });
+  await questions.push(
+    `<li><a href="/message/coupons" target="_blank">Coupons</a></li>`,
+  );
+  return reply
+    .type("text/html")
+    .send(
+      `<html><head><title>Commands</title></head><body><ul>${questions.join(
+        "",
+      )}</ul></body></html>`,
+    );
+});
+
 // Run the server
 const start = async () => {
   try {
