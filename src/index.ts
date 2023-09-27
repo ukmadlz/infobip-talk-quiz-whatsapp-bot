@@ -4,6 +4,7 @@ import FastifyStatic from "@fastify/static";
 import FastifySensible from "@fastify/sensible";
 import S from "fluent-json-schema";
 import { Infobip, AuthType } from "@infobip-api/sdk";
+import * as Ably from "ably";
 import Path from "path";
 import "dotenv/config";
 
@@ -31,6 +32,10 @@ const infobip = new Infobip({
   apiKey: String(process.env.INFOBIP_API_KEY),
   authType: AuthType.ApiKey,
 });
+
+// Setup Ably
+const ablyOptions: Ably.Types.ClientOptions = { key: process.env.ABLY_API_KEY };
+let ably = new Ably.Rest.Promise(ablyOptions);
 
 // Routes
 fastify.post(
@@ -65,6 +70,7 @@ fastify.post(
           });
         }
         if (whatsappMessage.message.type === "INTERACTIVE_BUTTON_REPLY") {
+          const channel = await ably.channels.get("you-should-write-an-sdk");
           const userData = await fastify.pg.query(
             "SELECT id FROM users WHERE phone = $1",
             [from],
@@ -79,6 +85,14 @@ fastify.post(
           await fastify.pg.query(
             "INSERT INTO user_answers (user_id, question_id, answer_id) VALUES ($1, $2, $3) ON CONFLICT (user_id, question_id) DO UPDATE SET answer_id = $3",
             [userId, questionId, answerId],
+          );
+          channel.publish(
+            "answer",
+            JSON.stringify({
+              userId,
+              answerId,
+              questionId,
+            }),
           );
         }
         infobip.channels.whatsapp.markAsRead(to, messageId);
