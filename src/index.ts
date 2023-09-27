@@ -203,10 +203,10 @@ fastify.get("/", async (request, reply) => {
     "SELECT id, question FROM questions ORDER BY id",
   );
   const questions = await questionData.rows.map((question: any) => {
-    return `<li><a href="/message/question/${question.id}" target="_blank">${question.question}</a></li>`;
+    return `<li style="font-size: 3em;" ><a href="/message/question/${question.id}" target="_blank">${question.question}</a></li>`;
   });
   await questions.push(
-    `<li><a href="/message/coupons" target="_blank">Coupons</a></li>`,
+    `<li style="font-size: 3em;"><a href="/message/coupons" target="_blank">Coupons</a></li>`,
   );
   return reply
     .type("text/html")
