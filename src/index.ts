@@ -165,7 +165,19 @@ fastify.get("/message/coupons", async (request: any, reply) => {
   await usersData.rows.map(async (user: any) => {
     if (coupons.length) {
       const { id, phone } = user;
-      const coupon = coupons.pop();
+      const coupon = await coupons.pop();
+      console.log({
+        coupon,
+        phone
+      })
+      await infobip.channels.whatsapp.send({
+        type: "text",
+        from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+        to: phone,
+        content: {
+          text: "SORRY! I goofed, here is the correct links & the coupon code",
+        },
+      });
       await infobip.channels.whatsapp.send({
         type: "text",
         from: String(process.env.INFOBIP_WHATSAPP_SENDER),
@@ -192,6 +204,14 @@ fastify.get("/message/coupons", async (request: any, reply) => {
         to: phone,
         content: {
           text: "Any questions, need help, or just want to chat head to our discord at https://discord.com/invite/G9Gr6fk2e4",
+        },
+      });
+      await infobip.channels.whatsapp.send({
+        type: "text",
+        from: String(process.env.INFOBIP_WHATSAPP_SENDER),
+        to: phone,
+        content: {
+          text: "And for those that care, my slide https://r.elsmore.me/3LD7iHK",
         },
       });
     }
